@@ -1,1 +1,24 @@
-
+name: Hindi narration - manual and scheduled
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 4,9,14 * * *' # 10:00, 15:00, 20:00 IST
+permissions:
+  contents: read
+jobs:
+  narrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: pip install -r requirements.txt
+      - run: python narrate.py --script script.txt --output narration.mp3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hindi-narration
+          path: narration.mp3
+          retention-days: 7
